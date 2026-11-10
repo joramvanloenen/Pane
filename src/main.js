@@ -50,7 +50,10 @@ function setFocus(room){
  $("observe-btn").textContent="LOOK CLOSER ↗";
  $("observe-btn").disabled=room.clean<.23;
  const st=room.story?progress[room.story.id]:null;
- if(st?.currentText){$("story-content").classList.remove("hidden");$("story-genre").textContent=room.story.genre;$("story-line").textContent=st.currentText;
+ if(st?.currentText){
+   const lastBeat=st.awaiting?Math.max(0,st.beat-1):Math.min(st.beat,room.story.beats.length-1);
+   tower.stageBeat(room,lastBeat);
+   $("story-content").classList.remove("hidden");$("story-genre").textContent=room.story.genre;$("story-line").textContent=st.currentText;
    if(st.awaiting){$("observe-btn").disabled=!!st.finished;$("observe-btn").textContent=st.finished?"THREAD COMPLETE":"FOLLOW THE THREAD ↗"}
    else if(st.finished){$("observe-btn").disabled=true;$("observe-btn").textContent="THREAD COMPLETE"}}
  updateRoomDetails();
@@ -262,5 +265,5 @@ function frame(now){
  tower.update(dt,gameClock);
  requestAnimationFrame(frame);
 }
-updateCounters();tower.move(10,1);tower.resize();
+updateCounters();tower.move(10,2);tower.resize();
 requestAnimationFrame(frame);
