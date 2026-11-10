@@ -175,7 +175,7 @@ export class Tower {
    const room={floor,col,key:floor+"-"+col,number:String(floor).padStart(2,"0")+String(col+1).padStart(2,"0"),story,
      title:story?.title||ROOM_NAMES[(floor*3+col)%ROOM_NAMES.length],
      description:story?.description||"An ordinary apartment. Ordinary, at least, from this side of the glass.",
-     theme,clean:0,strokes:0,anchors:{center:0,wander:0,window:1.55,bed:-1.6,table:-1,desk:-1.3,chair:1.25,shelf:1.55},group:new THREE.Group(),actors:[]};
+     theme,clean:0,strokes:0,props:[],socialTimer:7+rand(seed,21)*13,anchors:{center:0,wander:0,window:1.55,bed:-1.6,table:-1,desk:-1.3,chair:1.25,shelf:1.55},group:new THREE.Group(),actors:[]};
    room.group.position.set(roomX(col),roomY(floor),0);this.scene.add(room.group);
    const palette=THEMES[theme]||THEMES.home;
    const back=quad(5.65,3.64,"#ffffff",0,0,-3.42,room.group);back.material.map=wallpaper(room);back.material.color.set("#faf0e2");room.back=back;
@@ -207,6 +207,7 @@ export class Tower {
        if(kind==="shelf")room.anchors.shelf=x;
      }
      art.position.set(x,y,z);art.renderOrder=z>-1?4:1;room.group.add(art);
+     room.props.push({kind,mesh:art,x,y,z,seed:seed+i*9});
    }
    // Golden practical light. The 3D walls and illustrated props share a common value structure.
    const glow=new THREE.Mesh(new THREE.PlaneGeometry(4.8,3.5),new THREE.MeshBasicMaterial({map:makeGlow(palette[1]),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.44,toneMapped:false}));
@@ -321,7 +322,38 @@ export class Tower {
    this.camera.lookAt(this.cameraX,this.cameraY,-1);
    this.syncCamera();
    for(const room of this.rooms){const near=Math.abs(roomY(room.floor)-this.cameraY)<this.viewHeight*1.1&&Math.abs(roomX(room.col)-this.cameraX)<18;
-     for(const person of room.actors)person.update(dt,t,this.night,near&&room===this.focused)}
+     for(const person of room.actors)person.update(dt,t,this.night,near&&room===this.focused);
+     if(near){
+       // The set dressing breathes and sometimes changes when residents use it.
+       for(const item of room.props){
+         if(["plant","flowers","curtain"].includes(item.kind)){
+           item.mesh.rotation.z=Math.sin(this.time*(.65+rand(item.seed,1)*.5)+item.seed)*.012;
+           item.mesh.position.x=item.x+Math.sin(this.time*.8+item.seed)*.015;
+         }else if(item.kind==="record")item.mesh.rotation.z=Math.sin(this.time*.25)*.008;
+         if(item.kind==="phone"){
+           const user=room.actors.find(a=>a.current?.id==="phone"&&Math.abs(a.x-item.x)<.9);
+           item.mesh.visible=!user;
+         }
+       }
+       if(room.actors.length>1){
+         room.socialTimer-=dt;
+         if(room.socialTimer<=0){
+           const [a,b]=room.actors;
+           if(a.needs.fear>.56||b.needs.fear>.56){
+             a.react("protect",{connection:.08,safety:.08});b.react("recoil",{fear:-.05});
+           }else if((a.needs.stress+b.needs.stress)>.98&&Math.random()<.42){
+             a.react("argue",{stress:.07,connection:-.08});b.react("recoil",{stress:.09,connection:-.07});
+           }else if(a.needs.desire+b.needs.desire>1.04||a.needs.connection+b.needs.connection<.92){
+             const intimate=Math.random()<.32?"embrace":"tender";
+             a.react(intimate,{connection:.13,stress:-.07});b.react(intimate,{connection:.13,stress:-.07});
+           }else{
+             a.react("laugh",{connection:.07,stress:-.06});b.react("wave",{connection:.05});
+           }
+           room.socialTimer=11+Math.random()*18;
+         }
+       }
+     }
+   }
    const buf=this.rainGeom.attributes.position.array;for(let i=0;i<this.rainData.length;i++){const p=this.rainData[i];p.y-=dt*p.spd;if(p.y<-8)p.y=65;
      let j=i*6;buf[j]=p.x;buf[j+1]=p.y;buf[j+2]=p.z;buf[j+3]=p.x-.045;buf[j+4]=p.y-p.len;buf[j+5]=p.z}
    this.rainGeom.attributes.position.needsUpdate=true;
