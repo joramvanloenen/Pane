@@ -80,6 +80,8 @@ function drawPerson(a,t){
   if(phone){rx=19;ry=-245;lx=-40;ly=-139}
   if(activity==="read"){lx=-8;ly=-165;rx=18;ry=-164}
   if(a.gesture==="panic"||a.gesture==="fear"){rx=18;ry=-232;lx=-32;ly=-175}
+  if(a.gesture==="argue"){rx=67+Math.sin(t*5)*8;ry=-186;lx=-23;ly=-143}
+  if(a.gesture==="recoil"){rx=42;ry=-215;lx=-46;ly=-213}
   if(bend){lx=-44;ly=-95;rx=44;ry=-96}
   const elbowL=[lerp(-shoulders,lx,.45)-7,lerp(-194,ly,.48)],elbowR=[lerp(shoulders,rx,.45)+7,lerp(-194,ry,.48)];
   roundedLine(ctx,"rgba(8,11,15,.9)",21,[[-shoulders,-194],elbowL,[lx,ly]]);
@@ -166,7 +168,13 @@ export class Person {
     const targets={window:1.4,panic:-1.55,hide:-1.7,dance:0,embrace:0,kiss:0,tender:0,tea:-1.05,
       work:-1.25,rest:-1.5,sleep:-1.4,eat:-1,wave:1.15,point:1.3,freeze:this.x,
       wonder:1.3,relief:0,protect:-1.35,fear:-1.5,laugh:0,remember:-.6,dream:-.6};
-    if(gesture in targets)this.targetX=targets[gesture];
+    if(gesture in targets){
+      this.targetX=targets[gesture];
+      if(this.room.actors.length>1&&["embrace","kiss","tender","dance"].includes(gesture))
+        this.targetX+=(this.index===0?-.31:.31);
+    }
+    if(gesture==="argue")this.targetX=(this.index===0?-.75:.75);
+    if(gesture==="recoil")this.targetX=(this.index===0?-1.1:1.1);
     if(["dance","sleep","work","eat","rest"].includes(gesture))this.current=ACTIONS.find(a=>a.id===(gesture==="sleep"?"rest":gesture))||this.current;
     this.actionEnd=this.gestureUntil;
   }
@@ -206,6 +214,8 @@ export class Person {
     if(this.drawClock>interval){this.drawClock=0;drawPerson(this,this.time);this.texture.needsUpdate=true}
   }
   getEmotion(){
+    if(this.gesture==="kiss"||this.gesture==="embrace"||this.gesture==="tender")return"CLOSE TO SOMEONE";
+    if(this.gesture==="argue")return"UPSET";
     if(this.needs.fear>.6)return"AFRAID";
     if(this.needs.fatigue>.82)return"EXHAUSTED";
     if(this.needs.stress>.65)return"ON EDGE";
