@@ -98,6 +98,7 @@ function showBeat(){
  st.awaiting=false;
  const beat=r.story.beats[Math.min(st.beat,r.story.beats.length-1)];
  noteCurrent(r,beat);
+ tower.stageBeat(r,st.beat);
  st.currentText=beat.text;
  $("story-content").classList.remove("hidden");
  $("story-genre").textContent=r.story.genre+" / FRAGMENT "+(st.beat+1).toString().padStart(2,"0");
