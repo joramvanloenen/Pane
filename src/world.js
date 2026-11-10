@@ -266,6 +266,70 @@ export class Tower {
    this.camera.left=-this.viewHeight*aspect/2;this.camera.right=this.viewHeight*aspect/2;
    this.camera.top=this.viewHeight/2;this.camera.bottom=-this.viewHeight/2;this.camera.updateProjectionMatrix();
  }
+ stageBeat(room,beat){
+   if(!room.story||room.visualBeat===beat)return;
+   room.visualBeat=beat;
+   if(room.beatVisual){room.group.remove(room.beatVisual);room.beatVisual.geometry.dispose();room.beatVisual.material.map?.dispose();room.beatVisual.material.dispose();room.beatVisual=null}
+   const id=room.story.id;
+   const gestures={
+     "second-plate":["tea","remember","sleep"],"cipher":["work","panic","hide"],
+     "red-dress":["dance","argue","kiss"],"thirteenth":["wonder","freeze","fear"],
+     "lullaby":["protect","fear","relief"],"overtime":["sleep","work","relief"],
+     "neighbors":["phone","tender","embrace"],"greenhouse":["work","wonder","window"],
+     "three-knocks":["fear","panic","window"],"moving":["work","hide","freeze"],
+     "waltz":["dance","dance","rest"],"witness":["work","point","window"]
+   };
+   const sceneGesture=gestures[id]?.[beat]||"think";
+   for(const [i,p] of room.actors.entries())p.react(i===1&&["kiss","embrace","tender","dance"].includes(sceneGesture)?sceneGesture:i===1?"window":sceneGesture);
+   if(["cipher","thirteenth","three-knocks","lullaby"].includes(id))room.flicker=2.8;
+   if(id==="moving"&&beat>=2){
+     for(const p of room.props)p.mesh.visible=p.kind==="chair";
+     for(const a of room.actors)a.sprite.visible=false;
+   }
+   // These transient symbols are part of the actual Three.js room, not UI illustrations.
+   const [c,ctx]=canvas2d(256,256);
+   let x=0,y=-.18,z=-1.1,w=1.6,h=2.35,visible=true;
+   ctx.save();ctx.translate(128,128);
+   if((id==="second-plate"&&beat===1)||(id==="waltz"&&beat===1)){
+     x=1.16;y=-.48;z=-1.55;
+     ctx.shadowBlur=19;ctx.shadowColor="#d3dfec";
+     ellipse(ctx,0,-58,25,34,"rgba(170,187,197,.30)");
+     fillPoly(ctx,[[-27,-39],[30,-39],[65,106],[-66,106]],id==="waltz"?"rgba(82,128,151,.30)":"rgba(145,159,173,.24)");
+     ellipse(ctx,0,-57,23,32,"rgba(185,207,215,.23)");
+   }else if(id==="lullaby"&&beat===1){
+     x=.8;y=.1;z=2.32;w=1.2;h=1.2;
+     for(let i=0;i<5;i++){const ox=(i-2)*16;ellipse(ctx,ox,-22-(i%2)*11,8,18,"rgba(219,232,229,.32)")}
+     ellipse(ctx,0,35,39,49,"rgba(219,232,229,.25)");
+   }else if(id==="thirteenth"){
+     x=.7;y=.23;z=-3.02;w=1.55;h=1.65;
+     ctx.fillStyle="rgba(173,65,62,.46)";ctx.font="bold 155px Georgia";ctx.textAlign="center";ctx.fillText("13",0,51);
+   }else if(id==="red-dress"&&beat>=1){
+     x=1.4;y=-.6;z=-1.25;w=1.2;h=2.0;
+     fillPoly(ctx,[[-24,-78],[23,-78],[38,-41],[72,110],[-69,110],[-37,-41]],"rgba(158,37,56,.88)");
+     stroke(ctx,[[-18,-65],[5,-20],[28,77]],"rgba(235,133,129,.35)",4);
+   }else if(id==="greenhouse"&&beat===2){
+     x=1.9;y=.1;z=.6;w=1.0;h=1.3;
+     for(let i=0;i<9;i++){const t=i*Math.PI*2/9;ellipse(ctx,Math.cos(t)*44,Math.sin(t)*46,31,15,"rgba(89,146,91,.51)")}
+     ellipse(ctx,0,0,40,29,"rgba(193,200,116,.68)");ellipse(ctx,0,0,17,25,"rgba(25,59,43,.85)");ellipse(ctx,2,-2,6,10,"rgba(7,21,24,.93)");
+   }else if(id==="witness"&&beat>=1){
+     x=.5;y=.42;z=-2.96;w=1.8;h=1.1;
+     ctx.fillStyle="rgba(194,178,154,.75)";ctx.fillRect(-109,-42,218,110);
+     ctx.fillStyle="#7c2f38";ctx.font="bold 51px Georgia";ctx.textAlign="center";ctx.fillText("PANE",0,24);
+   }else if(id==="cipher"){
+     x=1.55;y=.32;z=-2.9;w=1.05;h=1.05;
+     ellipse(ctx,0,0,52,52,"rgba(182,53,52,.18)");ellipse(ctx,0,0,13,13,"rgba(248,73,60,.75)");
+   }else if(id==="three-knocks"&&beat===2){
+     x=1.26;y=-.35;z=-1.7;w=1.1;h=1.4;
+     for(let i=0;i<5;i++){let xx=-68+i*35;ellipse(ctx,xx,-59,8,18,"rgba(210,197,158,.8)");stroke(ctx,[[xx,-42],[xx,50]],"rgba(204,190,161,.76)",5);stroke(ctx,[[xx,22],[xx+14,22]],"rgba(204,190,161,.76)",5)}
+   }else visible=false;
+   ctx.restore();
+   if(visible){
+     const texture=texFromCanvas(c);
+     const material=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false,toneMapped:false});
+     const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h),material);
+     mesh.position.set(x,y,z);mesh.renderOrder=9;room.group.add(mesh);room.beatVisual=mesh;
+   }
+ }
  setNight(v){this.night=!!v;this.scene.background.set(v?"#07111a":"#2c3740");
    for(const r of this.rooms){r.back.material.color.set(v?"#a0a19e":"#d7d6cb");r.glow.material.opacity=v?.5:.21}
    this.rain.material.opacity=v?.25:.16;
