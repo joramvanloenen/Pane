@@ -251,7 +251,7 @@ export class Tower {
    const rope=new THREE.LineSegments(this.ropeGeom,new THREE.LineBasicMaterial({color:"#6b7880",transparent:true,opacity:.65}));this.scene.add(rope);
  }
  makeRain(){
-   const count=370,this.rainData=Array.from({length:count},(_,i)=>({x:rand(i,4)*38-19,y:rand(i,7)*70-6,z:4+rand(i,11)*11,spd:4+rand(i,13)*8,len:.1+rand(i,15)*.48}));
+   const count=370;this.rainData=Array.from({length:count},(_,i)=>({x:rand(i,4)*38-19,y:rand(i,7)*70-6,z:4+rand(i,11)*11,spd:4+rand(i,13)*8,len:.1+rand(i,15)*.48}));
    const pos=new Float32Array(count*6);this.rainGeom=new THREE.BufferGeometry();this.rainGeom.setAttribute("position",new THREE.BufferAttribute(pos,3));
    this.rain=new THREE.LineSegments(this.rainGeom,new THREE.LineBasicMaterial({color:"#7b9aa1",transparent:true,opacity:.26,depthWrite:false}));
    this.rain.frustumCulled=false;this.rain.renderOrder=19;this.scene.add(this.rain);
