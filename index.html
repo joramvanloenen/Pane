@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080d12" />
+  <meta name="description" content="PANE — A noir observation game. Every window is a life. Every life has something to hide." />
+  <title>PANE — Everyone Has Something to Hide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="game">
+    <div id="stage" aria-label="Interactive residential tower. Click a window to approach it, drag to clean the glass, and uncover its story."></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="flash" aria-hidden="true"></div>
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark">P</span><div><h1>PANE<span class="period">.</span></h1><small>A NOIR OBSERVATION</small></div></div>
+      <div class="mast-center"><span class="status-dot"></span><span id="shift-label">SHIFT 01</span><span class="separator">/</span><span id="weather-label">RAIN ON THE GLASS</span></div>
+      <div class="top-actions"><button id="clock-btn" class="text-button" title="Change between night and day"><span id="clock-icon">◑</span><span id="time-label">23:47 · NIGHT</span></button><button id="journal-btn" class="icon-button" aria-label="Open casebook" title="Open casebook">≡<span id="journal-count">0</span></button><button id="sound-btn" class="icon-button sound" aria-label="Toggle ambience" title="Toggle ambience">♪</button></div>
+    </header>
+    <aside class="left-rail">
+      <div class="vertical-line"></div><div class="rail-label">WHERE STORIES HIDE</div><div class="floor-block"><span>FLOOR</span><strong id="floor-number">10</strong><small>OF 12</small></div>
+      <div class="rail-nav"><button id="floor-up" aria-label="Go up one floor">↑</button><span></span><button id="floor-down" aria-label="Go down one floor">↓</button></div>
+      <div class="rail-bottom">NORTH / TOWER 09</div>
+    </aside>
+    <div class="right-rail"><span class="coord-label">N 52°51' / E 04°48'</span><div class="vertical-rule"></div><span class="vertical-caption">NO TWO WINDOWS THE SAME</span></div>
+    <div id="hover-tag" class="hover-tag hidden"></div>
+    <section id="focus-card" class="focus-card hidden" aria-live="polite">
+      <div class="focus-head"><div><span id="room-number" class="eyebrow">UNIT 1002</span><h2 id="room-title">Behind the glass</h2></div><button id="close-focus" class="cross-button" aria-label="Back to building">✕</button></div>
+      <div class="focus-content"><p id="room-description">A room full of stories.</p><div class="room-stats"><span id="room-mood">SOMEONE IS HOME</span><span id="room-cleanliness">GLASS 0% CLEAR</span></div><div class="clean-meter"><div id="clean-progress"></div></div><p id="focus-instruction">Drag across the glass to wipe away the grime.</p></div>
+      <div id="story-content" class="story-content hidden"><div class="story-divider"></div><div id="story-genre" class="eyebrow">A STORY IN FRAGMENTS</div><p id="story-line" class="story-line"></p><div id="story-choices" class="story-choices"></div></div>
+      <div class="focus-footer"><button id="observe-btn" class="primary-button" disabled>LOOK CLOSER <span>↗</span></button><button id="leave-btn" class="secondary-button">KEEP MOVING</button></div>
+    </section>
+    <div id="ambient-caption" class="ambient-caption"><span class="caption-bar"></span><span id="ambient-text">Behind a thousand panes of glass, a thousand lives continue.</span></div>
+    <div class="bottom-bar"><div class="controls-hint"><span class="kbd">↑ ↓</span> MOVE PLATFORM <span class="divider-dot">·</span> <span class="kbd">← →</span> CHANGE WINDOW <span class="divider-dot">·</span> <span class="kbd">DRAG</span> CLEAN</div><div class="right-hint"><span class="tiny-diamond">◇</span><span id="cases-counter">0 CASES DISCOVERED</span></div></div>
+    <div class="mobile-controls"><button id="mobile-left" aria-label="Move left">←</button><button id="mobile-up" aria-label="Move up">↑</button><button id="mobile-down" aria-label="Move down">↓</button><button id="mobile-right" aria-label="Move right">→</button></div>
+    <div id="journal" class="journal hidden" role="dialog" aria-modal="true" aria-label="Casebook"><div class="journal-header"><div><div class="eyebrow">PRIVATE NOTEBOOK / SHIFT 01</div><h2>THE CASEBOOK<span class="period">.</span></h2></div><button id="close-journal" class="cross-button" aria-label="Close casebook">✕</button></div><p class="journal-intro">A record of things seen through glass. You never know the whole story.</p><div class="journal-stats"><div><strong id="journal-cases">0</strong><span>THREADS</span></div><div><strong id="journal-clues">0</strong><span>FRAGMENTS</span></div><div><strong id="journal-windows">0</strong><span>PANES CLEANED</span></div></div><div id="journal-entries" class="journal-entries"></div><p class="journal-footer">THE CITY NEVER STOPS TALKING. YOU JUST HAVE TO LISTEN.</p></div>
+    <div id="intro" class="intro"><div class="intro-shine"></div><div class="intro-content"><div class="eyebrow intro-kicker">AN INTERACTIVE NOIR / ONE BUILDING / TWELVE FLOORS</div><h2>PA<span class="intro-outline">N</span>E<span class="period">.</span></h2><div class="intro-rule"></div><p>Everyone has something to hide.<br><em>Some things are only visible from the outside.</em></p><div class="intro-sub">You clean windows for a living. Tonight, you begin to notice what happens behind them.</div><button id="begin-btn" class="begin-button">BEGIN YOUR SHIFT <span>↗</span></button><div class="intro-foot">MOVE BETWEEN FLOORS · CLEAN WINDOWS · PIECE TOGETHER LIVES</div></div><div class="intro-side">THE VIEW FROM OUTSIDE<br>IS NEVER THE WHOLE STORY</div></div>
+    <div id="toast" role="status" class="toast hidden"></div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
